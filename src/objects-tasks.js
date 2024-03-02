@@ -34,8 +34,16 @@ function shallowCopy(source) {
  *    mergeObjects([]) => {}
  */
 function mergeObjects(objects) {
+  if (objects === 1) return objects.entries(objects[1]);
   if (!objects.length) return {};
-  return 1;
+  const accum = {};
+  objects.forEach((cur) => {
+    const currentKeys = Object.keys(cur);
+    currentKeys.forEach((el) => {
+      accum[el] = cur[el];
+    });
+  });
+  return accum;
 }
 
 /**
@@ -51,8 +59,11 @@ function mergeObjects(objects) {
  *    removeProperties({name: 'John', age: 30, city: 'New York'}, 'age') => {name: 'John', city: 'New York'}
  *
  */
-function removeProperties(/* obj, keys */) {
-  throw new Error('Not implemented');
+function removeProperties(obj, keys) {
+  const objLikeArray = Object.entries(obj);
+  return Object.fromEntries(
+    objLikeArray.filter((el) => keys.every((elem) => elem !== el[0]))
+  );
 }
 
 /**
