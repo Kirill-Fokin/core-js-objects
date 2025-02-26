@@ -216,7 +216,7 @@ function fromJSON(proto, json) {
   function Circle(radius) {
     this.radius = radius;
   }
-  Circle.prototype.getArea = function () {
+  Circle.prototype.getArea = function area() {
     return Math.PI * this.radius * this.radius;
   };
   const data = JSON.parse(json);
