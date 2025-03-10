@@ -102,7 +102,7 @@ function compareObjects(obj1, obj2) {
  *    isEmptyObject({}) => true
  *    isEmptyObject({a: 1}) => false
  */
-const isEmptyObject = (obj) => !(Object.keys(obj).length > 0);
+const isEmptyObject = (obj) => Object.getOwnPropertyNames(obj).length === 0;
 /**
  */
 function makeImmutable(obj) {
@@ -148,21 +148,33 @@ function makeWord(lettersObj) {
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
 function sellTickets(queue) {
-  const queueCopy = queue;
-  if (queueCopy[0] > 25) return false;
-  const res = queueCopy.reduce((money, bills) => {
-    let result;
-    if (bills === 25) return money + 25;
-    if (money - bills < 0) {
-      result = NaN;
-    } else {
-      result += bills;
+  let count25 = 0;
+  let count50 = 0;
+
+  for (let i = 0; i < queue.length; i += 1) {
+    const payment = queue[i];
+
+    if (payment === 25) {
+      count25 += 1;
+    } else if (payment === 50) {
+      if (count25 === 0) {
+        return false;
+      }
+      count25 -= 1;
+      count50 += 1;
+    } else if (payment === 100) {
+      if (count50 > 0 && count25 > 0) {
+        count50 -= 1;
+        count25 -= 1;
+      } else if (count25 >= 3) {
+        count25 -= 3;
+      } else {
+        return false;
+      }
     }
+  }
 
-    return money + result;
-  }, 0);
-
-  return !Number.isNaN(res);
+  return true;
 }
 
 /**
@@ -253,8 +265,15 @@ function fromJSON(proto, json) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
+function sortCitiesArray(arr) {
+  return arr.sort((a, b) => {
+    if (a.country < b.country) return -1;
+    if (a.country > b.country) return 1;
+    if (a.city < b.city) return -1;
+    if (a.city > b.city) return 1;
+
+    return 0;
+  });
 }
 
 /**
@@ -287,8 +306,18 @@ function sortCitiesArray(/* arr */) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const result = new Map();
+  array.forEach((item) => {
+    const key = keySelector(item);
+    const value = valueSelector(item);
+    if (!result.has(key)) {
+      result.set(key, []);
+    }
+    result.get(key).push(value);
+  });
+
+  return result;
 }
 
 /**
